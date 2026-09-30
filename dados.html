@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guia Rápido do Analista de Dados – Aprendizagem Aprofundada</title>
+<style>
+:root {
+--excel: #217346;
+--sql: #0078d4;
+--dax: #f2c811;
+--python: #3776ab;
+--bg: #f8fafc;
+--card: #ffffff;
+--text: #1e293b;
+--muted: #64748b;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+font-family: 'Segoe UI', system-ui, sans-serif;
+background: var(--bg);
+color: var(--text);
+line-height: 1.5;
+}
+header {
+background: linear-gradient(135deg, #0f172a, #1e293b);
+color: white;
+padding: 1.5rem 1rem;
+text-align: center;
+}
+header h1 { font-size: 1.8rem; margin-bottom: 0.3rem; }
+header p { opacity: 0.9; font-size: 0.95rem; }
+.container { max-width: 1100px; margin: 0 auto; padding: 1rem; }
+.search-box {
+margin: 1rem 0;
+display: flex;
+gap: 0.5rem;
+}
+.search-box input {
+flex: 1;
+padding: 0.75rem 1rem;
+border: 2px solid #e2e8f0;
+border-radius: 8px;
+font-size: 1rem;
+}
+.tabs {
+display: flex;
+gap: 0.5rem;
+flex-wrap: wrap;
+margin-bottom: 1.5rem;
+}
+.tab {
+padding: 0.6rem 1.2rem;
+border: none;
+border-radius: 8px;
+cursor: pointer;
+font-weight: 600;
+background: #e2e8f0;
+color: var(--text);
+transition: all 0.2s;
+}
+.tab.active { color: white; }
+.tab[data-tool="excel"].active { background: var(--excel); }
+.tab[data-tool="sql"].active { background: var(--sql); }
+.tab[data-tool="dax"].active { background: var(--dax); color: #1e293b; }
+.tab[data-tool="python"].active { background: var(--python); }
+.section { display: none; }
+.section.active { display: block; }
+.grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+gap: 1rem;
+}
+.card {
+background: var(--card);
+border-radius: 12px;
+box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+overflow: hidden;
+border-left: 5px solid #cbd5e1;
+transition: transform 0.15s;
+}
+.card:hover { transform: translateY(-2px); }
+.card.star { border-left-color: #f59e0b; }
+.card-header {
+padding: 0.9rem 1rem;
+cursor: pointer;
+display: flex;
+justify-content: space-between;
+align-items: center;
+font-weight: 600;
+}
+.card-header .name { font-size: 1.05rem; }
+.card-header .badge {
+font-size: 0.75rem;
+background: #fef3c7;
+color: #92400e;
+padding: 0.15rem 0.5rem;
+border-radius: 999px;
+}
+.card-body {
+display: none;
+padding: 0 1rem 1rem;
+border-top: 1px solid #f1f5f9;
+}
+.card.open .card-body { display: block; }
+.card-body h4 { margin: 0.8rem 0 0.3rem; font-size: 0.9rem; color: var(--muted); }
+.card-body pre {
+background: #0f172a;
+color: #e2e8f0;
+padding: 0.8rem;
+border-radius: 8px;
+overflow-x: auto;
+font-size: 0.85rem;
+margin: 0.4rem 0;
+}
+.card-body p { font-size: 0.92rem; margin-bottom: 0.5rem; }
+.tip {
+background: #f0fdf4;
+border-left: 4px solid #22c55e;
+padding: 0.6rem 0.8rem;
+border-radius: 0 6px 6px 0;
+font-size: 0.88rem;
+margin-top: 0.6rem;
+}
+footer {
+text-align: center;
+padding: 2rem 1rem;
+color: var(--muted);
+font-size: 0.85rem;
+}
+@media (max-width: 600px) {
+.grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<header>
+<h1>Guia Rápido do Analista de Dados</h1>
+<p>Aprendizagem aprofundada • Exemplos práticos • Edição 2026</p>
+</header>
+
+<div class="container">
+<div class="search-box">
+<input type="text" id="search" placeholder="Pesquisar comando (ex: VLOOKUP, CALCULATE, groupby...)">
+</div>
+
+<div class="tabs">
+<button class="tab active" data-tool="excel">Excel</button>
+<button class="tab" data-tool="sql">SQL</button>
+<button class="tab" data-tool="dax">Power BI DAX</button>
+<button class="tab" data-tool="python">Python (Pandas)</button>
+</div>
+
+<!-- ==================== EXCEL ==================== -->
+<div class="section active" id="excel">
+<div class="grid" id="excel-grid"></div>
+</div>
+
+<!-- ==================== SQL ==================== -->
+<div class="section" id="sql">
+<div class="grid" id="sql-grid"></div>
+</div>
+
+<!-- ==================== DAX ==================== -->
+<div class="section" id="dax">
+<div class="grid" id="dax-grid"></div>
+</div>
+
+<!-- ==================== PYTHON ==================== -->
+<div class="section" id="python">
+<div class="grid" id="python-grid"></div>
+</div>
+</div>
+
+<footer>
+Guia baseado nos comandos mais usados por analistas de dados • Exemplos prontos para copiar
+</footer>
+
+<script>
+const data = {
+excel: [
+{
+name: "SUM()",
+star: true,
+desc: "Soma todos os números numa gama de células. Uma das funções mais básicas e usadas.",
+syntax: "SUM(número1; [número2]; ...)",
+example: `=SUM(A2:A100)
+=SUM(B2; B5; B10)`,
+tip: "Use SUMIF/SUMIFS quando precisar de condições."
+},
+{
+name: "SUMIF()",
+star: false,
+desc: "Soma valores que satisfazem uma condição.",
+syntax: "SUMIF(intervalo_critério; critério; [intervalo_soma])",
+example: `=SUMIF(A2:A100; ">1000" B2:B100)
+=SUMIF(C:C; "Lisboa" D:D)`,
+tip: "Para várias condições use SUMIFS."
+},
+{
+name: "AVERAGE()",
+star: false,
+desc: "Calcula a média aritmética de números.",
+syntax: "AVERAGE(número1; [número2]; ...)",
+example: `=AVERAGE(B2:B50)
+=AVERAGE(10; 20; 30)`,
+tip: "Ignora células vazias e texto."
+},
+{
+name: "CONCAT() / TEXTJOIN()",
+star: false,
+desc: "Junta texto de várias células. TEXTJOIN permite separador e ignora vazios.",
+syntax: "CONCAT(texto1; texto2; ...)\nTEXTJOIN(delimitador; ignorar_vazio; texto1; ...)",
+example: `=CONCAT(A2; " " B2)
+=TEXTJOIN(" - " VERDADEIRO; A2:A5)`,
+tip: "TEXTJOIN é muito superior ao CONCAT antigo."
+},
+{
+name: "COUNT() / COUNTA() / COUNTIF() / COUNTIFS()",
+star: false,
+desc: "COUNT conta números; COUNTA conta células não vazias; COUNTIF/COUNTIFS contam com critérios.",
+syntax: "COUNT(intervalo)\nCOUNTA(intervalo)\nCOUNTIF(intervalo; critério)",
+example: `=COUNT(A2:A100)
+=COUNTA(A2:A100)
+=COUNTIF(B:B; "Concluído")
+=COUNTIFS(A:A; "2025" B:B; ">100")`,
+tip: "COUNTIFS é essencial para dashboards."
+},
+{
+name: "IF() ★ / IFS()",
+star: true,
+desc: "Lógica condicional. IF clássico; IFS para múltiplas condições (mais limpo).",
+syntax: "IF(teste_lógico; valor_se_verdadeiro; [valor_se_falso])\nIFS(teste1; valor1; teste2; valor2; ...)",
+example: `=IF(A2>1000; "Alto" "Baixo")
+=IFS(A2>=90; "A" A2>=70; "B" A2>=50; "C" VERDADEIRO; "D")`,
+tip: "Evite IFs aninhados profundos → use IFS ou SWITCH."
+},
+{
+name: "VLOOKUP() / XLOOKUP()",
+star: false,
+desc: "Procura valor numa tabela. XLOOKUP é a versão moderna e muito superior.",
+syntax: "VLOOKUP(valor; tabela; nº_coluna; [aproximado])\nXLOOKUP(valor; intervalo_procura; intervalo_retorno; [se_não_encontrado])",
+example: `=VLOOKUP(A2; Tabela1; 3; FALSO)
+=XLOOKUP(A2; Tabela1[Código]; Tabela1[Preço]; "Não encontrado")`,
+tip: "Migra sempre para XLOOKUP quando possível (Excel 365/2021+)."
+},
+{
+name: "INDEX() + MATCH()",
+star: false,
+desc: "Combinação poderosa e flexível para lookups (melhor que VLOOKUP em muitos casos).",
+syntax: "INDEX(matriz; nº_linha; [nº_coluna])\nMATCH(valor; intervalo; [tipo])",
+example: `=INDEX(C2:C100; MATCH(A2; B2:B100; 0))`,
+tip: "Funciona para pesquisa horizontal e vertical."
+},
+{
+name: "LEFT() / RIGHT() / MID() / LEN() / TRIM()",
+star: false,
+desc: "Funções de manipulação de texto essenciais.",
+syntax: "LEFT(texto; nº_caracteres)\nRIGHT(...)\nMID(texto; início; nº)\nLEN(texto)\nTRIM(texto)",
+example: `=LEFT(A2; 3)
+=RIGHT(A2; 4)
+=MID(A2; 5; 6)
+=LEN(A2)
+=TRIM(A2)`,
+tip: "TRIM remove espaços a mais – use sempre antes de limpar dados."
+},
+{
+name: "UPPER() / LOWER() / SUBSTITUTE() / REPLACE()",
+star: false,
+desc: "Alteração de maiúsculas/minúsculas e substituição de texto.",
+syntax: "UPPER(texto)\nLOWER(texto)\nSUBSTITUTE(texto; antigo; novo; [instância])",
+example: `=UPPER(A2)
+=SUBSTITUTE(A2; " " "_")
+=REPLACE(A2; 1; 3; "ABC")`,
+tip: "SUBSTITUTE é mais usado que REPLACE no dia-a-dia."
+},
+{
+name: "DATEDIF() / DATE()",
+star: false,
+desc: "Cálculos com datas. DATEDIF calcula diferença entre datas.",
+syntax: "DATEDIF(data_início; data_fim; unidade)\nDATE(ano; mês; dia)",
+example: `=DATEDIF(A2; HOJE(); "Y") // anos
+=DATEDIF(A2; B2; "M") // meses
+=DATE(2025; 12; 31)`,
+tip: "Unidades: \"Y\", \"M\", \"D\", \"YM\", \"MD\", \"YD\"."
+},
+{
+name: "SORT() / FILTER() / UNIQUE()",
+star: false,
+desc: "Funções dinâmicas modernas (Excel 365). Transformam a forma de trabalhar.",
+syntax: "SORT(matriz; [índice]; [ordem])\nFILTER(matriz; incluir)\nUNIQUE(matriz)",
+example: `=SORT(A2:B100; 2; -1)
+=FILTER(A2:C100; B2:B100="Lisboa")
+=UNIQUE(A2:A100)`,
+tip: "Estas três funções sozinhas substituem muitos pivots manuais."
+}
+],
+
+sql: [
+{
+name: "SELECT ★",
+star: true,
+desc: "Seleciona colunas de uma tabela. Base de praticamente todas as queries.",
+syntax: "SELECT coluna1, coluna2, ...\nFROM tabela;",
+example: `SELECT nome, idade, cidade
+FROM clientes
+WHERE idade > 30;`,
+tip: "Evite SELECT * em produção – especifique sempre as colunas."
+},
+{
+name: "DISTINCT",
+star: false,
+desc: "Remove valores duplicados do resultado.",
+syntax: "SELECT DISTINCT coluna FROM tabela;",
+example: `SELECT DISTINCT cidade FROM clientes;`,
+tip: "Útil para listar valores únicos (ex: categorias)."
+},
+{
+name: "WHERE / HAVING",
+star: false,
+desc: "WHERE filtra linhas antes do agrupamento; HAVING filtra depois do GROUP BY.",
+syntax: "WHERE condição\nHAVING condição_agregada",
+example: `SELECT cidade, COUNT(*)
+FROM vendas
+WHERE ano = 2025
+GROUP BY cidade
+HAVING COUNT(*) > 10;`,
+tip: "Nunca use agregações no WHERE – use HAVING."
+},
+{
+name: "GROUP BY / ORDER BY",
+star: false,
+desc: "Agrupa resultados e ordena o output.",
+syntax: "GROUP BY coluna1, ...\nORDER BY coluna [ASC|DESC]",
+example: `SELECT produto, SUM(valor) AS total
+FROM vendas
+GROUP BY produto
+ORDER BY total DESC;`,
+tip: "Colunas no SELECT não agregadas devem estar no GROUP BY."
+},
+{
+name: "JOIN (INNER, LEFT, RIGHT, FULL)",
+star: true,
+desc: "Combina tabelas. INNER JOIN é o mais usado.",
+syntax: "FROM t1\nINNER JOIN t2 ON t1.id = t2.id",
+example: `SELECT c.nome, p.produto
+FROM clientes c
+INNER JOIN pedidos p ON c.id = p.cliente_id;`,
+tip: "LEFT JOIN mantém todas as linhas da tabela da esquerda."
+},
+{
+name: "UNION / UNION ALL",
+star: false,
+desc: "Combina resultados de duas queries. UNION remove duplicados; UNION ALL mantém.",
+syntax: "SELECT ... UNION [ALL] SELECT ...",
+example: `SELECT nome FROM clientes_pt
+UNION ALL
+SELECT nome FROM clientes_br;`,
+tip: "Prefer UNION ALL quando souber que não há duplicados (mais rápido)."
+},
+{
+name: "CASE WHEN",
+star: false,
+desc: "Lógica condicional dentro do SELECT (equivalente ao IF do Excel).",
+syntax: "CASE WHEN condição THEN valor ELSE valor END",
+example: `SELECT nome,
+CASE
+WHEN idade < 18 THEN 'Menor'
+WHEN idade < 65 THEN 'Adulto'
+ELSE 'Sénior'
+END AS faixa
+FROM clientes;`,
+tip: "Pode ser usado em SELECT, WHERE, ORDER BY, etc."
+},
+{
+name: "CAST() / COALESCE() / NULLIF()",
+star: false,
+desc: "Conversão de tipos e tratamento de NULL.",
+syntax: "CAST(expressão AS tipo)\nCOALESCE(val1, val2, ...)\nNULLIF(a, b)",
+example: `SELECT CAST(preco AS DECIMAL(10,2)),
+COALESCE(telefone, 'Sem telefone'),
+NULLIF(desconto, 0)
+FROM produtos;`,
+tip: "COALESCE é o teu melhor amigo para lidar com NULLs."
+},
+{
+name: "LIKE / IN / BETWEEN / EXISTS",
+star: false,
+desc: "Operadores de filtragem avançados.",
+syntax: "coluna LIKE 'padrão%'\ncoluna IN (lista)\ncoluna BETWEEN a AND b\nEXISTS (subquery)",
+example: `WHERE nome LIKE 'João%'
+WHERE cidade IN ('Lisboa', 'Porto')
+WHERE data BETWEEN '2025-01-01' AND '2025-12-31'
+WHERE EXISTS (SELECT 1 FROM pedidos WHERE cliente_id = c.id)`,
+tip: "EXISTS é muitas vezes mais eficiente que IN com subqueries grandes."
+},
+{
+name: "COUNT() / SUM() / AVG() / MIN() / MAX()",
+star: false,
+desc: "Funções de agregação clássicas.",
+syntax: "COUNT(*), SUM(coluna), AVG(coluna), MIN(), MAX()",
+example: `SELECT
+COUNT(*) AS total_pedidos,
+SUM(valor) AS receita,
+AVG(valor) AS ticket_medio
+FROM vendas
+WHERE ano = 2025;`,
+tip: "COUNT(*) conta linhas; COUNT(coluna) ignora NULLs."
+}
+],
+
+dax: [
+{
+name: "SUM() ★ / SUMX()",
+star: true,
+desc: "SUM soma uma coluna; SUMX itera linha a linha (mais poderoso).",
+syntax: "SUM(Tabela[Coluna])\nSUMX(Tabela; Expressão)",
+example: `Total Vendas = SUM(Vendas[Valor])
+Total = SUMX(Vendas; Vendas[Qtd] * Vendas[Preço])`,
+tip: "Use SUMX quando precisar de cálculos linha a linha."
+},
+{
+name: "AVERAGE() / AVERAGEX()",
+star: false,
+desc: "Média simples vs média iterativa.",
+syntax: "AVERAGE(Tabela[Coluna])\nAVERAGEX(Tabela; Expressão)",
+example: `Média = AVERAGE(Vendas[Valor])
+Média Ponderada = AVERAGEX(Vendas; Vendas[Valor] * Vendas[Peso])`,
+tip: "AVERAGEX é necessário para médias ponderadas."
+},
+{
+name: "COUNTROWS() / DISTINCTCOUNT()",
+star: false,
+desc: "Conta linhas de uma tabela ou valores distintos de uma coluna.",
+syntax: "COUNTROWS(Tabela)\nDISTINCTCOUNT(Tabela[Coluna])",
+example: `Nº Pedidos = COUNTROWS(Vendas)
+Clientes Únicos = DISTINCTCOUNT(Vendas[ClienteID])`,
+tip: "DISTINCTCOUNT é essencial para KPIs de clientes únicos."
+},
+{
+name: "CALCULATE() ★",
+star: true,
+desc: "A função mais importante do DAX. Modifica o contexto de filtro.",
+syntax: "CALCULATE(Expressão; Filtro1; Filtro2; ...)",
+example: `Vendas 2025 = CALCULATE(SUM(Vendas[Valor]); Vendas[Ano] = 2025)
+Vendas Lisboa = CALCULATE([Total Vendas]; Clientes[Cidade] = "Lisboa")`,
+tip: "Quase tudo avançado em DAX passa por CALCULATE."
+},
+{
+name: "FILTER() / ALL() / ALLSELECTED() / ALLEXCEPT()",
+star: false,
+desc: "Funções de manipulação de contexto de filtro.",
+syntax: "FILTER(Tabela; Condição)\nALL(Tabela ou Coluna)\nALLSELECTED()\nALLEXCEPT(Tabela; Coluna)",
+example: `CALCULATE(SUM(Vendas[Valor]); FILTER(Vendas; Vendas[Valor] > 1000))
+% do Total = DIVIDE([Total]; CALCULATE([Total]; ALL(Vendas)))`,
+tip: "ALL remove filtros; ALLSELECTED respeita seleções do utilizador."
+},
+{
+name: "RELATED() / RELATEDTABLE()",
+star: false,
+desc: "Navega relações entre tabelas (1 para muitos e muitos para 1).",
+syntax: "RELATED(Tabela[Coluna])\nRELATEDTABLE(Tabela)",
+example: `Categoria = RELATED(Produtos[Categoria])
+Tabela Relacionada = RELATEDTABLE(Vendas)`,
+tip: "RELATED só funciona do lado 'muitos' para o lado 'um'."
+},
+{
+name: "VALUES() / SELECTEDVALUE() / HASONEVALUE()",
+star: false,
+desc: "Trabalham com valores distintos e seleções do utilizador.",
+syntax: "VALUES(Coluna)\nSELECTEDVALUE(Coluna; [valor_alternativo])\nHASONEVALUE(Coluna)",
+example: `Seleção = SELECTEDVALUE(Calendario[Ano]; "Vários anos")
+Único? = HASONEVALUE(Clientes[Cidade])`,
+tip: "SELECTEDVALUE é muito usado em títulos dinâmicos."
+},
+{
+name: "IF() / SWITCH() / AND() / OR() / NOT()",
+star: false,
+desc: "Lógica condicional em DAX.",
+syntax: "IF(condição; verdadeiro; falso)\nSWITCH(expressão; valor1; resultado1; ...)",
+example: `Status = IF([Total] > 1000; "Alto" "Baixo")
+Categoria = SWITCH(TRUE();
+[Total] > 5000; "Premium"
+[Total] > 1000; "Normal"
+"Baixo")`,
+tip: "SWITCH(TRUE(); ...) é o padrão moderno para múltiplas condições."
+},
+{
+name: "TOTALYTD() / TOTALQTD() / TOTALMTD()",
+star: false,
+desc: "Totais acumulados (Year-to-Date, Quarter-to-Date, Month-to-Date).",
+syntax: "TOTALYTD(Expressão; ColunaData; [filtro]; [ano_fim])",
+example: `YTD Vendas = TOTALYTD(SUM(Vendas[Valor]); Calendario[Data])`,
+tip: "Requer uma tabela de calendário marcada como Date Table."
+},
+{
+name: "DIVIDE() / RANKX() / CONCATENATEX()",
+star: false,
+desc: "Divisão segura, ranking e concatenação de texto.",
+syntax: "DIVIDE(numerador; denominador; [alternativo])\nRANKX(Tabela; Expressão)\nCONCATENATEX(Tabela; Expressão; [delimitador])",
+example: `% = DIVIDE([Vendas]; [Meta]; 0)
+Ranking = RANKX(ALL(Produtos); [Total Vendas])
+Lista = CONCATENATEX(VALUES(Clientes[Cidade]); Clientes[Cidade]; ", ")`,
+tip: "DIVIDE evita erros de divisão por zero."
+}
+],
+
+python: [
+{
+name: "pd.read_csv() ★ / pd.read_excel()",
+star: true,
+desc: "Lê ficheiros CSV e Excel para DataFrame – o ponto de partida de quase todos os projetos.",
+syntax: "pd.read_csv('ficheiro.csv')\npd.read_excel('ficheiro.xlsx', sheet_name=0)",
+example: `import pandas as pd
+df = pd.read_csv('vendas.csv', sep=';', encoding='utf-8')
+df = pd.read_excel('dados.xlsx', sheet_name='Vendas 2025')`,
+tip: "Sempre especifica encoding e sep quando necessário."
+},
+{
+name: "pd.DataFrame() / head() / tail() / info() / describe() / shape / dtypes",
+star: false,
+desc: "Criação e inspeção rápida de DataFrames.",
+syntax: "pd.DataFrame(data)\ndf.head(n)\ndf.info()\ndf.describe()\ndf.shape\ndf.dtypes",
+example: `df = pd.DataFrame({'nome': ['Ana', 'Bruno'], 'idade': [28, 34]})
+print(df.head())
+print(df.info())
+print(df.describe())
+print(df.shape) # (linhas, colunas)`,
+tip: "Começa sempre por .info() e .describe() ao receber dados novos."
+},
+{
+name: "isnull() / dropna() / fillna()",
+star: false,
+desc: "Detecção e tratamento de valores em falta (NaN).",
+syntax: "df.isnull()\ndf.dropna()\ndf.fillna(valor)",
+example: `df.isnull().sum() # quantos NaN por coluna
+df = df.dropna(subset=['idade']) # remove linhas sem idade
+df['cidade'] = df['cidade'].fillna('Desconhecida')`,
+tip: "Nunca drops NaNs cegamente – analisa primeiro o impacto."
+},
+{
+name: "groupby() / agg()",
+star: false,
+desc: "Agrupamento e agregações (equivalente a GROUP BY + funções).",
+syntax: "df.groupby('coluna').agg(...)\ndf.groupby(['col1','col2']).sum()",
+example: `df.groupby('cidade')['valor'].sum()
+df.groupby('ano').agg(
+total=('valor', 'sum'),
+media=('valor', 'mean'),
+qtd=('id', 'count')
+)`,
+tip: "agg() permite várias agregações ao mesmo tempo de forma limpa."
+},
+{
+name: "merge() / join()",
+star: false,
+desc: "Junção de DataFrames (equivalente a JOINs SQL).",
+syntax: "pd.merge(df1, df2, on='chave', how='left')\ndf1.join(df2, on='chave')",
+example: `resultado = pd.merge(clientes, vendas,
+left_on='id', right_on='cliente_id',
+how='left')`,
+tip: "how='left', 'right', 'inner', 'outer' – igual ao SQL."
+},
+{
+name: "pivot() / melt()",
+star: false,
+desc: "Transformação de formato largo ↔ longo (muito usado em relatórios).",
+syntax: "df.pivot(index=..., columns=..., values=...)\npd.melt(df, id_vars=..., value_vars=...)",
+example: `largo = df.pivot(index='produto', columns='mes', values='vendas')
+longo = pd.melt(largo.reset_index(), id_vars='produto')`,
+tip: "melt é o oposto de pivot – essencial para tidy data."
+},
+{
+name: "sort_values() / sort_index()",
+star: false,
+desc: "Ordenação por valores de colunas ou pelo índice.",
+syntax: "df.sort_values(by='coluna', ascending=False)\ndf.sort_index()",
+example: `df.sort_values(['ano', 'valor'], ascending=[True, False])`,
+tip: "Podes ordenar por várias colunas com listas."
+},
+{
+name: "loc[] / iloc[]",
+star: false,
+desc: "Seleção por rótulos (loc) ou por posição numérica (iloc).",
+syntax: "df.loc[linhas, colunas]\ndf.iloc[linhas, colunas]",
+example: `df.loc[df['cidade'] == 'Lisboa', ['nome', 'valor']]
+df.iloc[0:10, 0:3] # primeiras 10 linhas, 3 primeiras colunas
+df.loc[5, 'idade'] = 30`,
+tip: "loc usa rótulos; iloc usa posições inteiras (0-based)."
+},
+{
+name: "query() / apply() / map()",
+star: false,
+desc: "Filtragem com sintaxe SQL-like e aplicação de funções.",
+syntax: "df.query('expressão')\ndf['col'].apply(função)\ndf['col'].map(dicionário ou função)",
+example: `df.query('idade > 30 and cidade == "Lisboa"')
+df['categoria'] = df['valor'].apply(lambda x: 'Alto' if x > 1000 else 'Baixo')
+df['cidade'] = df['cidade'].map({'LX': 'Lisboa', 'PO': 'Porto'})`,
+tip: "query() é muito legível; apply() é poderoso mas mais lento."
+},
+{
+name: "value_counts() / unique() / to_csv()",
+star: false,
+desc: "Contagem de frequências, valores únicos e exportação.",
+syntax: "df['col'].value_counts()\ndf['col'].unique()\ndf.to_csv('ficheiro.csv')",
+example: `df['cidade'].value_counts(normalize=True) # percentagens
+print(df['status'].unique())
+df.to_csv('resultado.csv', index=False, encoding='utf-8-sig')`,
+tip: "value_counts() é o teu melhor amigo para análise exploratória rápida."
+}
+]
+};
+
+// Render cards
+function renderCards(tool) {
+const grid = document.getElementById(tool + '-grid');
+grid.innerHTML = '';
+data[tool].forEach((item, idx) => {
+const card = document.createElement('div');
+card.className = 'card' + (item.star ? ' star' : '');
+card.innerHTML = `
+<div class="card-header" onclick="this.parentElement.classList.toggle('open')">
+<span class="name">${item.name}</span>
+${item.star ? '<span class="badge">★ Mais usado</span>' : ''}
+</div>
+<div class="card-body">
+<p>${item.desc}</p>
+<h4>Sintaxe</h4>
+<pre>${item.syntax}</pre>
+<h4>Exemplo</h4>
+<pre>${item.example}</pre>
+<div class="tip"><strong>Dica:</strong> ${item.tip}</div>
+</div>
+`;
+grid.appendChild(card);
+});
+}
+
+// Tabs
+document.querySelectorAll('.tab').forEach(tab => {
+tab.addEventListener('click', () => {
+document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+tab.classList.add('active');
+document.getElementById(tab.dataset.tool).classList.add('active');
+});
+});
+
+// Search
+document.getElementById('search').addEventListener('input', e => {
+const term = e.target.value.toLowerCase();
+document.querySelectorAll('.card').forEach(card => {
+const name = card.querySelector('.name').textContent.toLowerCase();
+const body = card.querySelector('.card-body').textContent.toLowerCase();
+card.style.display = (name.includes(term) || body.includes(term)) ? '' : 'none';
+});
+});
+
+// Initial render
+['excel', 'sql', 'dax', 'python'].forEach(renderCards);
+</script>
+</body>
+</html>
